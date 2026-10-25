@@ -1,0 +1,2082 @@
+/* =========================================================================
+   Dionisio DEV — page styles
+   =========================================================================
+   This file only holds styles for THIS page's own sections. The reusable
+   scroll-video pinning/canvas/loader styles (.svs-*) live in their own file:
+   components/scroll-video-sequence/scroll-video-sequence.css — that one is
+   generic and gets reused by both scroll-video sections on this page.
+
+   Sections in this file, top to bottom:
+     1. Base / reset
+     2. Intro video reveal   (#introVideo → "closing banner" + principles)
+     3. Collection section   ("A Coleção" / "O Templo")
+     4. Project video gate   (confirm-before-scrubbing curtain + button)
+     5. Project gallery      (the 5-project carousel that ends the page)
+     6. About section        ("Sobre mim")
+     7. Closing pitch         (the page's final section)
+   ========================================================================= */
+
+
+/* -------------------------------------------------------------------------
+   1. Base / reset
+------------------------------------------------------------------------- */
+
+* {
+  box-sizing: border-box;
+}
+
+/* Hide the browser scrollbar everywhere on the page — purely cosmetic, the
+   page still scrolls normally with mouse wheel, trackpad, touch, keyboard. */
+html {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* old Edge/IE */
+}
+
+html::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/new Edge */
+}
+
+body {
+  margin: 0;
+  background: #0b0b0c;
+  color: #eee;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Whole-site backdrop, shared by every section.
+   This is a real `position: fixed` element — NOT `background-attachment:
+   fixed` on <body>. The attachment property is notoriously unreliable on
+   mobile (iOS Safari in particular has never supported it properly: the
+   image can detach, jump, or just render as `scroll` instead), which is
+   exactly the kind of thing to avoid on a page that needs to work the same
+   on every device. A plain fixed-positioned element behind everything else
+   achieves the identical "backdrop stays put while content scrolls over
+   it" look with none of that baggage.
+   No z-index is needed to keep it behind the page content: every direct
+   section below has `position: relative`, and since this div comes FIRST
+   in the HTML, normal paint order alone puts it under all of them. */
+.site-background {
+  position: fixed;
+  inset: 0;
+  /* The dark tint lives HERE, on the one shared fixed layer — not repeated
+     per-section. Sections that sit on top of this (.collection-section,
+     .about-section) are transparent, by design: each one used to carry its
+     OWN radial-gradient tint, and because those had different centers/
+     colors, the join between two sections showed up as a visible seam —
+     the backdrop image was continuous, but the tint on top of it wasn't.
+     A single tint on this single fixed element can't ever seam, because
+     there's only one of it for the whole page, always positioned the same
+     way relative to the viewport regardless of which section the user has
+     scrolled to. Shown otherwise exactly as authored — no filter/
+     brightness/saturation tweaks to the image itself. */
+  background:
+    radial-gradient(ellipse at 50% 45%, rgba(10, 5, 7, 0.25) 0%, rgba(10, 5, 7, 0.5) 100%),
+    url('../assets/img/background.png') no-repeat center center;
+  background-size: cover;
+  background-color: #0b0b0c;
+  pointer-events: none;
+}
+
+
+/* -------------------------------------------------------------------------
+   2. Intro video reveal
+   Markup: #introVideo > .svs-sticky > .hero-overlay, then .closing-banner
+   > .principles-*. The hero is visible from the very first frame — no
+   scrolling needed — and fades out again as soon as the user starts
+   scrolling (see js/intro-section.js). The closing banner is the mirror
+   image: invisible until js/intro-section.js fades it in, driven by how
+   far the user has scrolled through the intro video.
+------------------------------------------------------------------------- */
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 24px;
+  text-align: center;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.hero-overlay.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.hero-overlay-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+}
+
+.hero-heading {
+  margin: 0 0 20px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(28px, 4.4vw, 50px);
+  line-height: 1.25;
+  color: #f4eeea;
+}
+
+.hero-heading em {
+  display: block;
+  margin-top: 6px;
+  font-style: italic;
+  color: #d9863f;
+}
+
+.hero-lead {
+  margin: 0 auto 36px;
+  max-width: 560px;
+  font-size: 15.5px;
+  line-height: 1.7;
+  color: #cabdb6;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.hero-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 32px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #8a2942, #5c1626);
+  color: #fdf3ec;
+  font-size: 14.5px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 12px 30px rgba(122, 32, 53, 0.35);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.hero-cta-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(122, 32, 53, 0.5);
+  background: linear-gradient(135deg, #9c3049, #6c1b2d);
+}
+
+.hero-cta-primary svg {
+  width: 19px;
+  height: 19px;
+  flex: none;
+}
+
+.hero-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid rgba(224, 155, 79, 0.4);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #e8d9d2;
+  text-decoration: none;
+  transition: color 0.2s ease, border-color 0.2s ease, gap 0.2s ease;
+}
+
+.hero-cta-secondary:hover {
+  gap: 12px;
+  color: #f4eeea;
+  border-color: rgba(224, 155, 79, 0.8);
+}
+
+.hero-cta-secondary svg {
+  width: 14px;
+  height: 14px;
+  animation: hero-arrow-bounce 1.8s ease-in-out infinite;
+}
+
+@keyframes hero-arrow-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+.hero-cta-primary:focus-visible,
+.hero-cta-secondary:focus-visible {
+  outline: 2px solid rgba(217, 134, 63, 0.6);
+  outline-offset: 4px;
+}
+
+/* Same short-viewport safety net as .principles-heading below — a phone in
+   landscape or a short desktop window doesn't have room for the full lead
+   paragraph alongside a tall headline and two CTAs. */
+@media (max-height: 760px) {
+  .hero-lead {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) and (max-height: 820px), (max-height: 420px) {
+  .hero-heading {
+    margin-bottom: 14px;
+    font-size: clamp(20px, 5.5vw, 28px);
+  }
+  .hero-actions {
+    gap: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-overlay {
+    transition: none;
+  }
+  .hero-cta-secondary svg {
+    animation: none;
+  }
+}
+
+.closing-banner {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 24px;
+  /* bannerInicial.png is its OWN photo — different pixels than the ambient
+     .site-background, even though both are the same dark wine tone. Cutting
+     straight from one to the other (which is what happens the instant this
+     section's pin releases and .collection-section appears below it) read
+     as a hard, visible seam. The linear-gradient fades the last ~35% of
+     this image down to roughly the same dark tone .site-background settles
+     into, so by the time the user actually reaches that edge, this section
+     has already dissolved into a plain, matching dark backdrop — nothing
+     left to visibly "cut" from. */
+  background-image:
+    linear-gradient(to bottom, transparent 55%, rgba(9, 4, 6, 0.97) 100%),
+    url('../assets/img/bannerInicial.png');
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+}
+
+.principles-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 780px;
+  /* Safety net: on very short/narrow screens the 4 cards can need more
+     height than the 100vh pinned area has (measured: up to ~850px needed
+     vs. ~570px available on an iPhone SE). Rather than letting the extra
+     content get silently clipped by the parent's overflow:hidden — which
+     is what happened before this fix, hiding the heading and a whole card
+     with no way to see them — this panel scrolls internally as a last
+     resort, so every user can always reach every card. In practice the
+     compacting media query further down avoids this almost every time. */
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  text-align: center;
+}
+
+.principles-inner::-webkit-scrollbar {
+  display: none;
+}
+
+.principles-eyebrow {
+  position: relative;
+  margin: 0 0 10px;
+  padding-bottom: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #d9863f;
+}
+
+.principles-eyebrow::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 52px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #d9863f, transparent);
+}
+
+.principles-heading {
+  margin: 0 0 8px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(20px, 2.6vw, 32px);
+  line-height: 1.25;
+  color: #f4eeea;
+}
+
+.principles-heading em {
+  display: block;
+  font-style: italic;
+  color: #d9863f;
+  margin-top: 2px;
+}
+
+.principles-lead {
+  margin: 0 auto;
+  max-width: 540px;
+  color: #b6adab;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.principles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 18px;
+  margin-top: 48px;
+  text-align: left;
+}
+
+.principle-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 22px 26px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(38, 13, 31, 0.65) 0%, rgba(9, 4, 9, 0.86) 100%);
+  transition: border-color 0.25s ease;
+}
+
+.principle-card:hover {
+  border-color: rgba(197, 138, 74, 0.45);
+}
+
+.principle-icon {
+  flex: none;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(224, 155, 79, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.principle-icon img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+/* The grape logo's artwork has more empty padding baked into its own PNG
+   than the other three icons, so at the same box size it visually reads as
+   smaller — this just compensates so all 4 icons *look* the same size. */
+.principle-icon img[src*="logoUva"] {
+  width: 64px;
+  height: 64px;
+}
+
+.principle-copy h3 {
+  margin: 0 0 8px;
+  padding-bottom: 8px;
+  position: relative;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #e39a4a;
+}
+
+.principle-copy h3::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 24px;
+  height: 2px;
+  background: #e39a4a;
+}
+
+.principle-copy p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #c2b9b6;
+}
+
+@media (max-height: 800px) {
+  .principles-lead {
+    display: none;
+  }
+}
+
+/* Two cases need this compacting: (a) narrow AND moderately short — phones
+   in portrait, where the 4 cards stack into a single column and need a lot
+   more vertical room than the 2x2 grid desktop uses, or (b) any width but
+   critically short — phones in landscape, or a short desktop window, where
+   even the 2x2 grid's 2 rows don't fit. A short but WIDE desktop window
+   alone (plenty tall for 2x2, just not narrow) is deliberately excluded, so
+   it keeps the larger, easier-to-read default sizing instead of shrinking
+   unnecessarily. Either way this is a rare fallback — the internal scroll
+   above is the true safety net. */
+@media (max-width: 640px) and (max-height: 820px), (max-height: 420px) {
+  .principles-eyebrow {
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+  }
+  .principles-heading {
+    margin-bottom: 10px;
+    font-size: clamp(16px, 4vw, 22px);
+  }
+  .principles-grid {
+    margin-top: 16px;
+    gap: 10px;
+  }
+  .principle-card {
+    padding: 10px 14px;
+    gap: 12px;
+  }
+  .principle-icon {
+    width: 36px;
+    height: 36px;
+  }
+  .principle-icon img {
+    width: 18px;
+    height: 18px;
+  }
+  .principle-icon img[src*="logoUva"] {
+    width: 22px;
+    height: 22px;
+  }
+  .principle-copy h3 {
+    margin-bottom: 3px;
+    padding-bottom: 3px;
+    font-size: 10px;
+  }
+  .principle-copy p {
+    font-size: 10.5px;
+    line-height: 1.35;
+  }
+}
+
+@media (max-width: 640px) {
+  .principles-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* -------------------------------------------------------------------------
+   3. Collection section ("A Coleção" / "O Templo")
+   A normal (non-pinned) section — it just flows into view as the user
+   scrolls past the intro video, no JavaScript involved.
+------------------------------------------------------------------------- */
+
+.collection-section {
+  position: relative;
+  padding: 130px 24px;
+  /* No background of its own — the shared, fixed .site-background (with its
+     own tint baked in) shows through unbroken. A per-section tint here
+     would create a visible seam at the boundary with .about-section, since
+     the backdrop image is continuous but each section's own tint would not
+     be identical to its neighbor's. */
+  text-align: center;
+}
+
+.collection-inner {
+  position: relative; /* sit above .collection-section's ::before glow */
+  z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.collection-eyebrow {
+  position: relative;
+  margin: 0 0 22px;
+  padding-bottom: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #d9863f;
+}
+
+.collection-eyebrow::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 52px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #d9863f, transparent);
+}
+
+.collection-heading {
+  margin: 0 0 20px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(36px, 5vw, 56px);
+  line-height: 1.15;
+  color: #f4eeea;
+}
+
+.collection-lead {
+  margin: 0 auto;
+  max-width: 460px;
+  color: #b6adab;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+
+/* -------------------------------------------------------------------------
+   4. Project video gate
+   An opaque curtain (frame 1 of the project video as its own background)
+   sits on top of #projectVideo the whole time, with a "confirm" button.
+   See js/project-gate.js for why: scrolling never advances the video by
+   surprise, the user has to opt in first.
+------------------------------------------------------------------------- */
+
+.project-gate {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image:
+    linear-gradient(rgba(4, 2, 3, 0.4), rgba(4, 2, 3, 0.4)),
+    url('../assets/videos/videoProjetos1/ezgif-frame-001.jpg');
+  background-size: cover;
+  background-position: center;
+  transition: opacity 0.6s ease;
+}
+
+.project-gate-button {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 38px;
+  border: 1px solid rgba(224, 155, 79, 0.55);
+  border-radius: 999px;
+  background: rgba(10, 5, 7, 0.55);
+  color: #f4eeea;
+  font: 600 12px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  backdrop-filter: blur(2px);
+  transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease, opacity 0.5s ease;
+}
+
+.project-gate-button:hover {
+  border-color: rgba(224, 155, 79, 0.9);
+  background: rgba(10, 5, 7, 0.75);
+  transform: scale(1.03);
+}
+
+.project-gate-button svg {
+  width: 16px;
+  height: 16px;
+  animation: project-gate-bounce 1.6s ease-in-out infinite;
+}
+
+.project-gate.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes project-gate-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+
+
+/* -------------------------------------------------------------------------
+   5. Project gallery
+   Appears once the scroll-video settles on its last (empty-frame) frame.
+   Two stacked <img> layers cross-fade between the 5 pre-framed project
+   shots (ping-pong technique: whichever layer isn't showing loads the next
+   picture, then fades in on top — see js/project-gallery.js).
+------------------------------------------------------------------------- */
+
+.project-gallery {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 70px;
+  transition: opacity 0.9s ease;
+}
+
+/* Collapses the whole project-video section back to one screen — see
+   js/project-experience.js. Positioned relative to .project-gallery, which
+   is already `position: absolute; inset: 0` (see above), so top/right here
+   are relative to the whole gallery panel, not just the framed picture. */
+.gallery-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(224, 155, 79, 0.45);
+  background: rgba(10, 5, 7, 0.5);
+  color: #f0dfc8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+
+.gallery-close:hover {
+  border-color: rgba(224, 155, 79, 0.9);
+  background: rgba(10, 5, 7, 0.8);
+  transform: rotate(90deg);
+}
+
+.gallery-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Wordless nudge toward the exit, played once whenever the user scrolls
+   into the end-of-video ceiling — see the scroll clamp in
+   js/project-experience.js. */
+.gallery-close.is-hinting {
+  animation: gallery-close-hint 0.6s ease;
+  border-color: rgba(224, 155, 79, 0.9);
+}
+
+@keyframes gallery-close-hint {
+  0%, 100% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.22);
+  }
+  65% {
+    transform: scale(0.94);
+  }
+}
+
+.gallery-stage {
+  position: relative;
+  /* min() picks whichever cap is tightest, then aspect-ratio derives the
+     height from that already-correct width — this is what actually keeps
+     the box true 16:9 while still respecting both a max width and a max
+     height. (Setting max-width AND max-height directly alongside
+     aspect-ratio does NOT reliably preserve the ratio in browsers — they
+     clamp each axis independently, which silently caps the box at a much
+     smaller effective size than intended.) */
+  width: min(1320px, 100%, calc(60vh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  flex: 0 1 auto;
+}
+
+.gallery-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transform: scale(1.035);
+  transition: opacity 0.85s ease, transform 1.1s ease;
+  filter: drop-shadow(0 18px 46px rgba(0, 0, 0, 0.75));
+}
+
+.gallery-frame.is-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.gallery-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(224, 155, 79, 0.45);
+  background: rgba(10, 5, 7, 0.5);
+  color: #f0dfc8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+
+.gallery-arrow:hover {
+  border-color: rgba(224, 155, 79, 0.9);
+  background: rgba(10, 5, 7, 0.8);
+}
+
+.gallery-arrow--prev {
+  left: 16px;
+}
+
+.gallery-arrow--prev:hover {
+  transform: translateY(-50%) translateX(-3px);
+}
+
+.gallery-arrow--next {
+  right: 16px;
+}
+
+.gallery-arrow--next:hover {
+  transform: translateY(-50%) translateX(3px);
+}
+
+.gallery-arrow svg {
+  width: 18px;
+  height: 18px;
+}
+
+.gallery-caption {
+  flex: none;
+  width: 100%;
+  max-width: 460px;
+  margin-top: 18px;
+  text-align: center;
+}
+
+.gallery-index {
+  margin: 0 0 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  color: rgba(224, 155, 79, 0.6);
+}
+
+.gallery-eyebrow {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #d9863f;
+}
+
+.gallery-title {
+  margin: 0 0 8px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(20px, 2.6vw, 28px);
+  color: #f4eeea;
+}
+
+.gallery-desc {
+  margin: 0 0 14px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #b6adab;
+}
+
+.gallery-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #e39a4a;
+  text-decoration: none;
+  padding-bottom: 3px;
+  border-bottom: 1px solid rgba(227, 154, 74, 0.4);
+  transition: border-color 0.25s ease, color 0.25s ease, gap 0.25s ease;
+}
+
+.gallery-link:hover {
+  color: #f0c084;
+  border-color: rgba(240, 192, 132, 0.9);
+  gap: 9px;
+}
+
+.gallery-link svg {
+  width: 12px;
+  height: 12px;
+}
+
+.gallery-dots {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 16px;
+}
+
+.gallery-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid rgba(224, 155, 79, 0.55);
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.25s ease, width 0.25s ease;
+}
+
+.gallery-dot:hover {
+  transform: scale(1.3);
+}
+
+.gallery-dot.is-active {
+  width: 16px;
+  border-radius: 3px;
+  background: #d9863f;
+}
+
+@media (max-height: 760px) {
+  .project-gallery {
+    padding: 20px 76px;
+  }
+  .gallery-desc {
+    display: none;
+  }
+  .gallery-dots {
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  .project-gallery {
+    padding: 16px 54px;
+  }
+  .gallery-arrow {
+    width: 38px;
+    height: 38px;
+  }
+  .gallery-close {
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+  }
+}
+
+
+/* -------------------------------------------------------------------------
+   6. About section ("Sobre mim")
+   The page's closing section, right after the project gallery. A normal
+   (non-pinned) section, no JavaScript — a two-column layout with the bio
+   text on the left and the marble-bust portrait on the right, stacking to
+   portrait-then-text on narrow screens.
+------------------------------------------------------------------------- */
+
+.about-section {
+  position: relative;
+  padding: 110px 24px;
+  /* No background of its own — same reasoning as .collection-section
+     above: avoids a seam at the shared boundary between the two. */
+  overflow: hidden;
+}
+
+.about-grid {
+  position: relative; /* sit above .about-section's ::before glow */
+  z-index: 1;
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: 32px;
+}
+
+.about-eyebrow {
+  position: relative;
+  display: inline-block;
+  margin: 0 0 22px;
+  padding-bottom: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #d9863f;
+}
+
+.about-eyebrow::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 52px;
+  height: 1px;
+  background: linear-gradient(90deg, #d9863f, transparent);
+}
+
+.about-heading {
+  margin: 0 0 26px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(30px, 4vw, 46px);
+  line-height: 1.25;
+  color: #f4eeea;
+}
+
+.about-heading span {
+  color: #d9863f;
+}
+
+.about-lead {
+  margin: 0 0 20px;
+  max-width: 480px;
+  color: #b6adab;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.about-bio {
+  margin: 0;
+  max-width: 480px;
+  color: #b6adab;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.about-portrait {
+  display: flex;
+  justify-content: center;
+}
+
+.about-portrait img {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  display: block;
+}
+
+@media (max-width: 800px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .about-portrait {
+    order: -1; /* show the portrait above the text once stacked */
+    margin-bottom: 8px;
+  }
+  .about-portrait img {
+    max-width: 240px;
+  }
+  .about-eyebrow {
+    padding-bottom: 14px;
+  }
+  .about-eyebrow::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .about-lead,
+  .about-bio {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+
+/* -------------------------------------------------------------------------
+   7. Closing pitch
+   The page's final section. No background of its own, same reasoning as
+   .collection-section/.about-section: the shared, fixed .site-background
+   shows through unbroken, so there's no seam at the join with "Sobre mim"
+   above it.
+------------------------------------------------------------------------- */
+
+.pitch-section {
+  position: relative;
+  padding: 120px 24px;
+  text-align: center;
+}
+
+.pitch-inner {
+  position: relative; /* sit above .pitch-section's ::before glow */
+  z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.pitch-eyebrow {
+  position: relative;
+  display: inline-block;
+  margin: 0 0 22px;
+  padding-bottom: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #d9863f;
+}
+
+.pitch-eyebrow::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 52px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #d9863f, transparent);
+}
+
+.pitch-heading {
+  margin: 0 0 22px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.35;
+  color: #f4eeea;
+}
+
+.pitch-heading em {
+  font-style: italic;
+  color: #d9863f;
+}
+
+.pitch-lead {
+  margin: 0 auto;
+  max-width: 480px;
+  color: #b6adab;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* 3-tab switcher ("Seu site" / "Seu sistema" / "Sua loja"). Each tab has
+   its own accent (site = roxo, sistema = amarelo, loja = verde) instead of
+   the site's single gold — js/pitch-tabs.js sets --tab-accent/-soft/-bright
+   on this element to match whichever tab is active, and every colored
+   piece below (active underline, icon, accent line, headline em, stat
+   value, feature bullet, pill border, CTA) reads from those variables, so
+   the whole tab retints as one unit instead of just the icon. The gold
+   fallback values keep this looking right even before JS runs. */
+.pitch-tabs {
+  position: relative; /* sit above .pitch-section's ::before glow */
+  z-index: 1;
+  margin: 56px auto 0;
+  max-width: min(1300px, 94vw);
+  padding: 0 24px;
+  --tab-accent: #d9863f;
+  --tab-accent-soft: rgba(224, 155, 79, 0.3);
+  --tab-accent-bright: #f0c084;
+}
+
+.pitch-tabs-nav {
+  display: flex;
+  border-bottom: 1px solid rgba(224, 155, 79, 0.18);
+}
+
+.pitch-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.25s ease;
+}
+
+.pitch-tab-index {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: rgba(224, 155, 79, 0.55);
+}
+
+.pitch-tab-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #77706e;
+  transition: color 0.25s ease;
+}
+
+.pitch-tab:hover .pitch-tab-label {
+  color: #cabdb6;
+}
+
+.pitch-tab.is-active {
+  border-bottom-color: var(--tab-accent);
+}
+
+.pitch-tab.is-active .pitch-tab-index {
+  color: var(--tab-accent);
+}
+
+.pitch-tab.is-active .pitch-tab-label {
+  color: #f4eeea;
+}
+
+/* Wraps both pieces JS renders per tab — the centered icon+tagline intro,
+   then the sales-card below it — so switching tabs fades them as one unit
+   instead of needing two separately-timed transitions. */
+.pitch-tab-content {
+  transition: opacity 0.22s ease;
+}
+
+.pitch-tab-content.is-fading {
+  opacity: 0;
+}
+
+/* Centered icon + one-line tagline, sitting above the sales-card — the
+   short "why this matters" beat before the fuller pitch below it. */
+.pitch-tab-intro {
+  max-width: 460px;
+  margin: 40px auto 0;
+  text-align: center;
+}
+
+.pitch-tab-icon {
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--tab-accent-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tab-accent);
+}
+
+.pitch-tab-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.pitch-tab-tagline {
+  margin: 0 0 20px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #d9c9c2;
+}
+
+.pitch-tab-intro-accent {
+  width: 36px;
+  height: 2px;
+  margin: 0 auto;
+  background: var(--tab-accent);
+}
+
+/* The sales-card panel. Left-aligned on purpose — a deliberate contrast
+   against the centered eyebrow/heading/lead (and the centered intro right
+   above it), so this reads as "here's the actual offer" rather than more
+   of the same intro copy. */
+.pitch-tab-panel {
+  margin-top: 40px;
+  padding: 34px clamp(20px, 4vw, 44px);
+  border: 1px solid var(--tab-accent-soft);
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(38, 13, 31, 0.35) 0%, rgba(9, 4, 9, 0.55) 100%);
+  text-align: left;
+}
+
+.pitch-tab-headline {
+  margin: 0 0 16px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(19px, 2.4vw, 24px);
+  line-height: 1.4;
+  color: #f4eeea;
+}
+
+.pitch-tab-headline em {
+  font-style: italic;
+  color: var(--tab-accent);
+}
+
+.pitch-tab-desc {
+  margin: 0 0 28px;
+  max-width: 640px;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: #a89e9b;
+}
+
+.pitch-tab-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.pitch-tab-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 18px 10px;
+  border: 1px solid var(--tab-accent-soft);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.pitch-tab-stat-value {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 22px;
+  color: var(--tab-accent-bright);
+}
+
+.pitch-tab-stat-label {
+  font-size: 11px;
+  line-height: 1.35;
+  color: #8f8583;
+}
+
+.pitch-tab-features {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pitch-tab-features li {
+  position: relative;
+  padding-left: 20px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #beb3b0;
+}
+
+.pitch-tab-features li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 6px;
+  height: 6px;
+  background: var(--tab-accent);
+}
+
+.pitch-tab-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+/* Benefit badges (see the `perks` field in js/pitch-tabs.js) — not tech
+   names, so labels run a bit longer than the old stack pills did. Wraps
+   onto two lines instead of forcing nowrap so a long label never gets
+   clipped or forces horizontal scroll on a narrow phone. */
+.pitch-tab-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px 7px 10px;
+  border: 1px solid var(--tab-accent-soft);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #cabdb6;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.pitch-tab-pill-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.pitch-tab-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid var(--tab-accent-soft);
+}
+
+.pitch-tab-footer-note {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 13.5px;
+  color: #8f8583;
+}
+
+.pitch-tab-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tab-accent);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: gap 0.25s ease, color 0.25s ease;
+}
+
+.pitch-tab-cta:hover {
+  color: var(--tab-accent-bright);
+  gap: 12px;
+}
+
+.pitch-tab-cta svg {
+  width: 15px;
+  height: 15px;
+}
+
+@media (max-width: 640px) {
+  .pitch-tab-stats {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .pitch-tab-stat {
+    flex-direction: row;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+  }
+  .pitch-tab-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+}
+
+@media (max-width: 560px) {
+  .pitch-tab-label {
+    font-size: 12px;
+  }
+  .pitch-tab {
+    padding: 0 4px 14px;
+  }
+}
+
+/* Larger screens: the card has plenty of room to spare, so it grows to use
+   more of it instead of sitting narrow in the middle of a wide viewport —
+   bigger icon, bigger type, roomier stats/features. */
+@media (min-width: 1200px) {
+  .pitch-tab-panel {
+    padding: 48px 64px;
+  }
+
+  .pitch-tab-headline {
+    font-size: 30px;
+  }
+
+  .pitch-tab-desc {
+    max-width: 760px;
+    font-size: 16px;
+  }
+
+  .pitch-tab-stats {
+    gap: 20px;
+    margin-bottom: 34px;
+  }
+
+  .pitch-tab-stat {
+    padding: 24px 16px;
+  }
+
+  .pitch-tab-stat-value {
+    font-size: 28px;
+  }
+
+  .pitch-tab-stat-label {
+    font-size: 12px;
+  }
+
+  .pitch-tab-features {
+    gap: 16px;
+    margin-bottom: 34px;
+  }
+
+  .pitch-tab-features li {
+    font-size: 15px;
+  }
+
+  .pitch-tab-pill {
+    padding: 8px 18px 8px 14px;
+    font-size: 13px;
+  }
+
+  .pitch-tab-pill-icon {
+    font-size: 16px;
+  }
+
+  .pitch-tab-intro {
+    max-width: 560px;
+  }
+
+  .pitch-tab-icon {
+    width: 74px;
+    height: 74px;
+  }
+
+  .pitch-tab-icon svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .pitch-tab-tagline {
+    font-size: 18px;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   8. Process timeline
+   Same "no background of its own" reasoning as every other flowing section
+   above — the shared, fixed .site-background shows through unbroken.
+------------------------------------------------------------------------- */
+
+.process-section {
+  position: relative;
+  padding: 120px 24px;
+  text-align: center;
+}
+
+.process-inner {
+  position: relative; /* sit above .process-section's ::before glow */
+  z-index: 1;
+  /* Fluid up to a generous cap instead of a fixed 1000px — on large/ultrawide
+     screens this uses most of the viewport (like .pitch-tabs does) instead
+     of leaving the timeline looking small and boxed-in in the middle. */
+  max-width: min(1500px, 94vw);
+  margin: 0 auto;
+}
+
+.process-eyebrow {
+  position: relative;
+  display: inline-block;
+  margin: 0 0 22px;
+  padding-bottom: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #d9863f;
+}
+
+.process-eyebrow::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 52px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #d9863f, transparent);
+}
+
+.process-heading {
+  margin: 0;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1.15;
+  color: #f4eeea;
+}
+
+.process-timeline {
+  position: relative;
+  display: flex;
+  margin-top: 72px;
+  /* Single source of truth for the marker's diameter — the connecting
+     line's vertical offset (::before below, and the mobile vertical
+     connector further down) reads the SAME variable instead of a
+     hardcoded px value, so the two can never drift out of sync as this
+     scales up on bigger screens. */
+  --process-marker-size: 56px;
+}
+
+/* A faint always-visible base line, running exactly between the CENTER of
+   the first and last circles: with 4 equal 25%-wide columns, those centers
+   always fall at 12.5% and 87.5% of the row, regardless of each step's
+   text length. .process-line-fill (below) sits right on top of this and
+   "draws" itself brighter left-to-right via JS — this base line is what's
+   left showing if that JS never runs, so the timeline still reads as
+   connected either way. */
+.process-timeline::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--process-marker-size) / 2);
+  left: 12.5%;
+  right: 12.5%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(217, 134, 63, 0.18) 15%, rgba(217, 134, 63, 0.18) 85%, transparent);
+  z-index: 0;
+}
+
+.process-line-fill {
+  position: absolute;
+  top: calc(var(--process-marker-size) / 2);
+  left: 12.5%;
+  right: 12.5%;
+  height: 1px;
+  transform-origin: left center;
+  background: linear-gradient(
+    90deg,
+    rgba(217, 134, 63, 0.2),
+    rgba(217, 134, 63, 0.75) 15%,
+    rgba(217, 134, 63, 0.75) 85%,
+    rgba(217, 134, 63, 0.2)
+  );
+  z-index: 0;
+}
+
+.process-step {
+  position: relative;
+  flex: 0 0 25%;
+  max-width: 25%;
+  padding: 0 16px;
+}
+
+.process-step-marker {
+  position: relative;
+  z-index: 1;
+  width: var(--process-marker-size);
+  height: var(--process-marker-size);
+  margin: 0 auto 26px;
+  border: 1px solid rgba(224, 155, 79, 0.45);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: calc(var(--process-marker-size) * 0.27);
+  color: #d9863f;
+  /* Close to the page's own near-black tone (see .site-background) so it
+     blends in while still opaquely masking the connecting line behind it —
+     without this the line would visibly cut across each number. */
+  background: rgba(10, 5, 7, 0.85);
+}
+
+.process-step-title {
+  margin: 0 0 12px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(19px, 1.6vw, 24px);
+  color: #f4eeea;
+}
+
+.process-step-desc {
+  margin: 0 auto;
+  max-width: 260px;
+  font-size: clamp(13px, 0.95vw, 15px);
+  line-height: 1.65;
+  color: #9a908d;
+}
+
+/* Large/ultrawide screens: the timeline has a lot of room to spare at
+   min(1500px, 94vw), so it grows to fill it — bigger markers, bigger type
+   — instead of leaving 4 small circles floating in a huge row. */
+@media (min-width: 1400px) {
+  .process-timeline {
+    --process-marker-size: 72px;
+    margin-top: 88px;
+  }
+
+  .process-step {
+    padding: 0 28px;
+  }
+
+  .process-step-desc {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 720px) {
+  .process-timeline {
+    flex-direction: column;
+    align-items: center;
+    gap: 44px;
+    margin-top: 56px;
+  }
+
+  .process-timeline::before,
+  .process-line-fill {
+    display: none;
+  }
+
+  .process-step {
+    flex: 0 0 auto;
+    max-width: 320px;
+    padding: 0;
+  }
+
+  /* The horizontal line becomes a short vertical one between each step's
+     marker and the next, instead of disappearing entirely on mobile. */
+  .process-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: var(--process-marker-size);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 44px;
+    background: linear-gradient(180deg, rgba(217, 134, 63, 0.5), transparent);
+  }
+}
+
+/* -------------------------------------------------------------------------
+   9. FAQ
+   Single-open accordion. Logic: js/faq-accordion.js (only ever toggles
+   ".is-open" + aria-expanded) — the expand/collapse motion itself is pure
+   CSS, see ".faq-answer" below.
+------------------------------------------------------------------------- */
+
+.faq-section {
+  position: relative;
+  padding: 120px 24px;
+  text-align: center;
+}
+
+.faq-inner {
+  position: relative; /* sit above .faq-section's ::before glow */
+  z-index: 1;
+  /* Deliberately NOT as wide as .process-inner/.pitch-tabs — long lines of
+     question/answer text get harder to read as they stretch, regardless of
+     how much spare viewport width there is, so this stays a fixed,
+     comfortable reading width instead of growing on large screens. */
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.faq-eyebrow {
+  position: relative;
+  display: inline-block;
+  margin: 0 0 22px;
+  padding-bottom: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #d9863f;
+}
+
+.faq-eyebrow::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 52px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #d9863f, transparent);
+}
+
+.faq-heading {
+  margin: 0;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(32px, 4vw, 44px);
+  color: #f4eeea;
+}
+
+.faq-list {
+  margin-top: 56px;
+  text-align: left;
+  border-top: 1px solid rgba(224, 155, 79, 0.16);
+}
+
+.faq-item {
+  border-bottom: 1px solid rgba(224, 155, 79, 0.16);
+}
+
+.faq-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  padding: 26px 4px;
+  background: none;
+  border: none;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 17px;
+  color: #d9c9c2;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.faq-question:hover {
+  color: #f4eeea;
+}
+
+.faq-question:focus-visible {
+  outline: 2px solid rgba(217, 134, 63, 0.6);
+  outline-offset: 4px;
+}
+
+/* A "+" drawn from two bars — rotating the whole thing 45° on open turns
+   it into an "×" for free, no separate icon/state needed. */
+.faq-icon {
+  position: relative;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  transition: transform 0.3s ease;
+}
+
+.faq-icon::before,
+.faq-icon::after {
+  content: '';
+  position: absolute;
+  background: #d9863f;
+}
+
+.faq-icon::before {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  transform: translateY(-50%);
+}
+
+.faq-icon::after {
+  left: 50%;
+  top: 0;
+  width: 1.5px;
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+.faq-item.is-open .faq-icon {
+  transform: rotate(45deg);
+}
+
+/* The 0fr → 1fr grid-track trick: animates to/from the answer's natural
+   height without JS ever having to measure scrollHeight (which breaks the
+   moment text reflows at a different width) or resorting to a fixed
+   max-height guess (which either clips long answers or leaves a stalled
+   pause at the end of a short one). */
+.faq-answer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+
+.faq-item.is-open .faq-answer {
+  grid-template-rows: 1fr;
+}
+
+.faq-answer-inner {
+  overflow: hidden;
+}
+
+.faq-answer-inner p {
+  margin: 0;
+  padding: 0 28px 26px 0;
+  max-width: 640px;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: #a89e9b;
+}
+
+@media (max-width: 560px) {
+  .faq-question {
+    gap: 16px;
+    padding: 20px 2px;
+    font-size: 15px;
+  }
+
+  .faq-answer-inner p {
+    padding-bottom: 20px;
+    font-size: 13.5px;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   10. Final CTA
+   The page's last section. Its card gets its own tone — a wine-red button
+   instead of the site's usual gold — specifically so the ONE action that
+   matters most on the whole page (talk to Thiago) doesn't read as just
+   another gold accent among many.
+------------------------------------------------------------------------- */
+
+.cta-section {
+  position: relative;
+  padding: 100px 24px 160px;
+}
+
+.cta-card {
+  position: relative;
+  max-width: min(900px, 92vw);
+  margin: 0 auto;
+  overflow: hidden;
+  padding: 72px 40px;
+  border: 1px solid rgba(224, 155, 79, 0.22);
+  border-radius: 24px;
+  background: linear-gradient(160deg, rgba(38, 13, 31, 0.55) 0%, rgba(6, 3, 5, 0.85) 100%);
+  text-align: center;
+}
+
+/* A soft spotlight glowing down from behind the heading — cinematic, in
+   keeping with the intro video's own lighting, and it's what keeps this
+   card from reading as just a flat bordered box. */
+.cta-glow {
+  position: absolute;
+  top: -160px;
+  left: 50%;
+  width: 620px;
+  height: 380px;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(217, 134, 63, 0.32), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cta-content {
+  position: relative;
+  z-index: 1;
+}
+
+.cta-eyebrow {
+  position: relative;
+  display: inline-block;
+  margin: 0 0 22px;
+  padding-bottom: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #d9863f;
+}
+
+.cta-eyebrow::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 52px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #d9863f, transparent);
+}
+
+.cta-heading {
+  margin: 0 0 18px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.3;
+  color: #f4eeea;
+}
+
+.cta-lead {
+  margin: 0 auto 36px;
+  max-width: 460px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #b6adab;
+}
+
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 36px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #8a2942, #5c1626);
+  color: #fdf3ec;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 12px 30px rgba(122, 32, 53, 0.35);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.cta-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(122, 32, 53, 0.5);
+  background: linear-gradient(135deg, #9c3049, #6c1b2d);
+}
+
+.cta-button:focus-visible {
+  outline: 2px solid rgba(217, 134, 63, 0.6);
+  outline-offset: 4px;
+}
+
+.cta-button-icon {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+@media (max-width: 560px) {
+  .cta-card {
+    padding: 48px 24px;
+    border-radius: 18px;
+  }
+
+  .cta-button {
+    width: 100%;
+    justify-content: center;
+    padding: 16px 24px;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   11. Footer
+------------------------------------------------------------------------- */
+
+.site-footer {
+  position: relative;
+  padding: 48px 24px 56px;
+  border-top: 1px solid rgba(224, 155, 79, 0.14);
+  text-align: center;
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 18px;
+  border: 1px solid rgba(224, 155, 79, 0.4);
+  border-radius: 50%;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 18px;
+  color: #d9863f;
+}
+
+.footer-copyright {
+  margin: 0;
+  font-size: 12.5px;
+  color: #8f8583;
+}
+
+/* -------------------------------------------------------------------------
+   12. Ambient section glow + inter-section connectors
+   Two small, cheap additions that do most of the work of making the page
+   feel like one continuous space instead of a stack of separate blocks:
+   a soft light source behind every section's heading, and a "vine" thread
+   tying each section to the next instead of leaving a flat, dead gap.
+   Entrance animation for both lives in js/scroll-reveals.js.
+------------------------------------------------------------------------- */
+
+.collection-section::before,
+.about-section::before,
+.pitch-section::before,
+.process-section::before,
+.faq-section::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: min(720px, 90vw);
+  height: 340px;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(217, 134, 63, 0.12), transparent 72%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.section-thread {
+  position: relative;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section-thread::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%) scaleY(0);
+  transform-origin: top;
+  transition: transform 1.1s ease;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(217, 134, 63, 0.5) 30%,
+    rgba(217, 134, 63, 0.5) 70%,
+    transparent
+  );
+}
+
+.section-thread.is-visible::before {
+  transform: translateX(-50%) scaleY(1);
+}
+
+.section-thread-dot {
+  position: relative;
+  z-index: 1;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d9863f;
+  box-shadow: 0 0 12px 2px rgba(217, 134, 63, 0.55);
+  opacity: 0;
+  transform: scale(0.4);
+  transition: opacity 0.4s ease 0.5s, transform 0.4s ease 0.5s;
+}
+
+.section-thread.is-visible .section-thread-dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-thread::before,
+  .section-thread-dot {
+    transition: none;
+  }
+}
+
+/* A slow, quiet "breathing" glow behind the final CTA — the one place on
+   the page where a bit of continuous motion earns its keep, marking this
+   as the page's climax rather than just another section. */
+@keyframes cta-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.08);
+  }
+}
+
+.cta-glow {
+  animation: cta-glow-pulse 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-glow {
+    animation: none;
+  }
+}

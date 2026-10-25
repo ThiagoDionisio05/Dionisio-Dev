@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dionisio DEV</title>
+  <meta name="description" content="Dionisio DEV — landing page com vídeo controlado por scroll e vitrine dos projetos digitais." />
+  <meta name="theme-color" content="#0b0b0c" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230b0b0c'/%3E%3Ctext x='50' y='70' font-family='Georgia, serif' font-size='58' fill='%23d9863f' text-anchor='middle'%3ED%3C/text%3E%3C/svg%3E" />
+
+  <link rel="stylesheet" href="components/scroll-video-sequence/scroll-video-sequence.css" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- Shared backdrop for the whole page — see .site-background in
+       css/main.css for why this is a real fixed element, not
+       background-attachment: fixed. Must stay the FIRST element in <body>
+       so normal paint order keeps it behind every section below. -->
+  <div class="site-background" aria-hidden="true"></div>
+
+  <!-- ===================================================================
+       Section 1: intro video (plays automatically while scrolling).
+       Opens on the hero (headline + CTAs, visible immediately, no scroll
+       needed) sitting over frame 1, then ends with a "principles" banner
+       revealing on top of the last frame. Logic: js/intro-section.js
+  ==================================================================== -->
+  <section class="svs-section" id="introVideo" style="--svs-scroll-length: 220vh;">
+    <div class="svs-sticky">
+      <canvas class="svs-canvas"></canvas>
+      <div class="svs-overlay"></div>
+      <div class="hero-overlay" id="heroOverlay">
+        <div class="hero-overlay-inner">
+          <h1 class="hero-heading">
+            Do comum ao extraordinário:
+            <em>sites que convertem, tarefas no automático.</em>
+          </h1>
+          <p class="hero-lead">Design marcante e automações sob medida que tiram o trabalho repetitivo das suas mãos — para negócios de Brasília que querem crescer e ser lembrados.</p>
+          <div class="hero-actions">
+            <!-- TODO: swap href for the real WhatsApp number — same number
+                 as .cta-button in the final CTA section below. -->
+            <a class="hero-cta-primary" href="#" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.86 9.86 0 0 0 12.04 2Zm5.8 14.1c-.24.68-1.4 1.32-1.93 1.4-.5.08-1.12.11-1.8-.11a16.6 16.6 0 0 1-1.66-.62c-2.94-1.27-4.86-4.22-5-4.42-.15-.2-1.2-1.6-1.2-3.05 0-1.45.76-2.16 1.03-2.46.27-.3.6-.37.8-.37.2 0 .4 0 .58.01.19.01.44-.07.68.53.25.61.85 2.1.92 2.25.07.15.12.33.02.53-.1.2-.15.32-.3.5-.15.17-.31.39-.44.52-.15.15-.3.31-.13.6.17.3.75 1.24 1.61 2 .25.22.5.4.75.5.19.07.3.13.44-.07.14-.19.6-.7.76-.94.15-.24.31-.2.52-.12.2.08 1.3.61 1.53.72.22.11.37.17.42.26.06.1.06.55-.18 1.23Z" />
+              </svg>
+              Falar no WhatsApp
+            </a>
+            <a class="hero-cta-secondary" href="#projectVideo" id="heroScrollLink">
+              Entrar no templo
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="closing-banner" id="closingBanner">
+        <div class="principles-inner">
+          <p class="principles-eyebrow">O que nos move</p>
+          <h2 class="principles-heading">
+            Princípios que fermentam
+            <em>ideias e impulsionam resultados.</em>
+          </h2>
+          <p class="principles-lead">
+            Acreditamos que grandes sistemas nascem de valores sólidos.
+            Cada linha de código carrega propósito, estratégia e intenção.
+          </p>
+          <div class="principles-grid">
+            <article class="principle-card">
+              <div class="principle-icon"><img src="assets/img/logoUva.png" alt="" /></div>
+              <div class="principle-copy">
+                <h3>Transformação</h3>
+                <p>Dionísio transforma uva em vinho — você transforma ideias em sistemas funcionais.</p>
+              </div>
+            </article>
+            <article class="principle-card">
+              <div class="principle-icon"><img src="assets/img/logoRaio.png" alt="" /></div>
+              <div class="principle-copy">
+                <h3>Criação</h3>
+                <p>Filho de Zeus, nascido do trovão. Código que nasce com poder e intenção.</p>
+              </div>
+            </article>
+            <article class="principle-card">
+              <div class="principle-icon"><img src="assets/img/logoMascara.png" alt="" /></div>
+              <div class="principle-copy">
+                <h3>Dualidade</h3>
+                <p>Deus da euforia e do caos criativo. Frontend e backend em equilíbrio.</p>
+              </div>
+            </article>
+            <article class="principle-card">
+              <div class="principle-icon"><img src="assets/img/logoPlanta.png" alt="" /></div>
+              <div class="principle-copy">
+                <h3>Crescimento</h3>
+                <p>Vinhas que se expandem e enraízam. Projetos que escalam e persistem.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+      <div class="svs-loader">
+        <div class="svs-loader-bar"><div class="svs-loader-fill"></div></div>
+        <span class="svs-loader-text">0%</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================
+       Section 2: "A Coleção" / "O Templo" — no JS of its own; its fade-in
+       entrance is handled centrally by js/scroll-reveals.js.
+  ==================================================================== -->
+  <section class="collection-section">
+    <div class="collection-inner">
+      <p class="collection-eyebrow">A Coleção</p>
+      <h2 class="collection-heading">O Templo</h2>
+      <p class="collection-lead">Obras digitais que transformam ideias em presença, experiência e identidade.</p>
+    </div>
+  </section>
+
+  <!-- ===================================================================
+       Section 3: project video — collapsed to one screen by default (just
+       the "Entre no templo" card below); opening it expands the section
+       into the full scroll-driven video, ending on a 5-project carousel
+       with a close button to collapse back down.
+       Logic: js/project-experience.js, js/project-gallery.js, js/project-video.js
+  ==================================================================== -->
+  <section class="svs-section" id="projectVideo" style="--svs-scroll-length: 100vh;">
+    <div class="svs-sticky">
+      <canvas class="svs-canvas"></canvas>
+      <div class="svs-overlay"></div>
+
+      <div class="project-gallery" id="projectGallery">
+        <button type="button" class="gallery-close" id="galleryClose" aria-label="Fechar e voltar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+        <div class="gallery-stage">
+          <img class="gallery-frame" id="galleryFrameA" alt="" />
+          <img class="gallery-frame" id="galleryFrameB" alt="" />
+          <button type="button" class="gallery-arrow gallery-arrow--prev" id="galleryPrev" aria-label="Projeto anterior">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <button type="button" class="gallery-arrow gallery-arrow--next" id="galleryNext" aria-label="Próximo projeto">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </button>
+        </div>
+        <div class="gallery-caption">
+          <p class="gallery-index" id="galleryIndex">01 / 05</p>
+          <p class="gallery-eyebrow" id="galleryEyebrow"></p>
+          <h3 class="gallery-title" id="galleryTitle"></h3>
+          <p class="gallery-desc" id="galleryDesc"></p>
+          <a class="gallery-link" id="galleryLink" href="#" target="_blank" rel="noopener">
+            Visitar site
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 17L17 7M9 7h8v8" />
+            </svg>
+          </a>
+          <div class="gallery-dots" id="galleryDots"></div>
+        </div>
+      </div>
+
+      <div class="project-gate" id="projectGate">
+        <button type="button" class="project-gate-button" id="projectGateButton">
+          Entre no templo
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 12l7 7 7-7" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="svs-loader">
+        <div class="svs-loader-bar"><div class="svs-loader-fill"></div></div>
+        <span class="svs-loader-text">0%</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================
+       Section 4: "Sobre mim" — no JS of its own; its fade-in entrance is
+       handled centrally by js/scroll-reveals.js.
+  ==================================================================== -->
+  <section class="about-section">
+    <div class="about-grid">
+      <div class="about-content">
+        <p class="about-eyebrow">Sobre mim</p>
+        <h2 class="about-heading">O <span>dev</span> que carrega<br />o nome de um deus</h2>
+        <p class="about-lead">Dionísio não era apenas o deus do vinho — era o deus da transformação. Do comum que vira extraordinário.</p>
+        <p class="about-bio">Sou Thiago Dionísio, dev e designer de Brasilia. Construo sites, sistemas e identidades digitais para negócios que querem parar de ser invisíveis online.</p>
+      </div>
+      <div class="about-portrait">
+        <img src="assets/img/Sobremim.png" alt="Busto de mármore estilizado representando Thiago, o desenvolvedor" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Decorative connector between sections — a short "vine" thread tying
+       the page's flow together instead of leaving a flat, dead gap. Purely
+       visual (aria-hidden), no content. -->
+  <div class="section-thread" aria-hidden="true"><span class="section-thread-dot"></span></div>
+
+  <!-- ===================================================================
+       Section 5: closing pitch — includes a 3-tab switcher ("Seu site" /
+       "Seu sistema" / "Sua loja"). Logic: js/pitch-tabs.js
+  ==================================================================== -->
+  <section class="pitch-section">
+    <div class="pitch-inner">
+      <p class="pitch-eyebrow">O que nos move</p>
+      <h2 class="pitch-heading">
+        Seu negócio merece<br />
+        uma presença <em>digna dos deuses.</em>
+      </h2>
+      <p class="pitch-lead">Não entrego apenas código. Entrego o produto digital que seu negócio precisa para crescer, converter e ser lembrado.</p>
+    </div>
+
+    <!-- Wider than .pitch-inner on purpose: the sales-card content below
+         (3-column stats, feature list) needs more room to breathe than the
+         640px the centered intro text above uses. -->
+    <div class="pitch-tabs">
+      <div class="pitch-tabs-nav" role="tablist">
+        <button type="button" class="pitch-tab is-active" data-tab="site" role="tab" aria-selected="true">
+          <span class="pitch-tab-index">I</span>
+          <span class="pitch-tab-label">Seu site</span>
+        </button>
+        <button type="button" class="pitch-tab" data-tab="sistema" role="tab" aria-selected="false">
+          <span class="pitch-tab-index">II</span>
+          <span class="pitch-tab-label">Seu sistema</span>
+        </button>
+        <button type="button" class="pitch-tab" data-tab="loja" role="tab" aria-selected="false">
+          <span class="pitch-tab-index">III</span>
+          <span class="pitch-tab-label">Sua loja</span>
+        </button>
+        <button type="button" class="pitch-tab" data-tab="automacao" role="tab" aria-selected="false">
+          <span class="pitch-tab-index">IV</span>
+          <span class="pitch-tab-label">Sua automação</span>
+        </button>
+      </div>
+
+      <!-- Content is rendered entirely by js/pitch-tabs.js (see the TABS
+           data object there) — this stays empty so there's exactly one
+           source of truth for each tab's copy, not one in HTML plus two
+           more duplicated in JS. Renders two pieces per tab: a centered
+           icon + one-line tagline, then the fuller sales-card below it. -->
+      <div class="pitch-tab-content" id="pitchTabContent" role="tabpanel" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <div class="section-thread" aria-hidden="true"><span class="section-thread-dot"></span></div>
+
+  <!-- ===================================================================
+       Section 6: process timeline — the step-by-step reveal and the
+       connecting line's draw-in are both handled by js/scroll-reveals.js.
+  ==================================================================== -->
+  <section class="process-section">
+    <div class="process-inner">
+      <p class="process-eyebrow">Como funciona</p>
+      <h2 class="process-heading">Processo</h2>
+
+      <div class="process-timeline">
+        <!-- Sits exactly on top of the static base line (css/main.css) and
+             "draws" itself left-to-right via GSAP as the timeline scrolls
+             into view — see js/scroll-reveals.js. The static line under it
+             means the timeline never looks unfinished if JS fails to run. -->
+        <div class="process-line-fill" aria-hidden="true"></div>
+        <div class="process-step">
+          <div class="process-step-marker">01</div>
+          <h3 class="process-step-title">Conversa</h3>
+          <p class="process-step-desc">Entendo seu negócio, objetivos e público.</p>
+        </div>
+        <div class="process-step">
+          <div class="process-step-marker">02</div>
+          <h3 class="process-step-title">Proposta</h3>
+          <p class="process-step-desc">Escopo, prazo e investimento claros.</p>
+        </div>
+        <div class="process-step">
+          <div class="process-step-marker">03</div>
+          <h3 class="process-step-title">Design</h3>
+          <p class="process-step-desc">Criação visual e conteúdo, com sua aprovação em cada etapa.</p>
+        </div>
+        <div class="process-step">
+          <div class="process-step-marker">04</div>
+          <h3 class="process-step-title">Entrega</h3>
+          <p class="process-step-desc">Site no ar, testado e pronto para vender.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-thread" aria-hidden="true"><span class="section-thread-dot"></span></div>
+
+  <!-- ===================================================================
+       Section 7: FAQ — single-open accordion. Logic: js/faq-accordion.js
+  ==================================================================== -->
+  <section class="faq-section">
+    <div class="faq-inner">
+      <p class="faq-eyebrow">Dúvidas comuns</p>
+      <h2 class="faq-heading">FAQ</h2>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <button type="button" class="faq-question" id="faqQuestion1" aria-expanded="false" aria-controls="faqAnswer1">
+            <span>Quanto tempo leva para meu site ficar pronto?</span>
+            <span class="faq-icon" aria-hidden="true"></span>
+          </button>
+          <div class="faq-answer" id="faqAnswer1" role="region" aria-labelledby="faqQuestion1">
+            <div class="faq-answer-inner">
+              <p>Depende do escopo, mas a maioria dos projetos fica pronta entre 7 e 15 dias — da conversa inicial ao site no ar. Sistemas e lojas mais completos têm um prazo próprio, combinado já na proposta.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" id="faqQuestion2" aria-expanded="false" aria-controls="faqAnswer2">
+            <span>O valor inclui domínio e hospedagem?</span>
+            <span class="faq-icon" aria-hidden="true"></span>
+          </button>
+          <div class="faq-answer" id="faqAnswer2" role="region" aria-labelledby="faqQuestion2">
+            <div class="faq-answer-inner">
+              <p>O desenvolvimento é orçado à parte de domínio e hospedagem. Eu te oriento na escolha e deixo tudo configurado e funcionando — sem enrolação técnica da sua parte.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" id="faqQuestion3" aria-expanded="false" aria-controls="faqAnswer3">
+            <span>Como funciona o pagamento?</span>
+            <span class="faq-icon" aria-hidden="true"></span>
+          </button>
+          <div class="faq-answer" id="faqAnswer3" role="region" aria-labelledby="faqQuestion3">
+            <div class="faq-answer-inner">
+              <p>Geralmente 50% no início do projeto e 50% na entrega, via Pix. Para projetos maiores, dá para dividir em mais etapas — isso fica definido junto com você na proposta.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" id="faqQuestion4" aria-expanded="false" aria-controls="faqAnswer4">
+            <span>Vocês dão suporte depois da entrega?</span>
+            <span class="faq-icon" aria-hidden="true"></span>
+          </button>
+          <div class="faq-answer" id="faqAnswer4" role="region" aria-labelledby="faqQuestion4">
+            <div class="faq-answer-inner">
+              <p>Sim. Todo projeto sai com um período de suporte incluso para ajustes e dúvidas, e depois disso continuo disponível sempre que precisar de mim.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" id="faqQuestion5" aria-expanded="false" aria-controls="faqAnswer5">
+            <span>Posso pedir alterações depois de pronto?</span>
+            <span class="faq-icon" aria-hidden="true"></span>
+          </button>
+          <div class="faq-answer" id="faqAnswer5" role="region" aria-labelledby="faqQuestion5">
+            <div class="faq-answer-inner">
+              <p>Claro. Pequenos ajustes fazem parte do processo de aprovação, sem custo extra. Mudanças maiores ou novas funcionalidades entram como um novo escopo, sempre combinado antes de começar.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-thread" aria-hidden="true"><span class="section-thread-dot"></span></div>
+
+  <!-- ===================================================================
+       Section 8: final CTA — no JS of its own; its entrance and the
+       glow's breathing pulse are handled by js/scroll-reveals.js and CSS.
+       TODO: swap the WhatsApp href below for the real number, in the
+       format https://wa.me/55DDXXXXXXXXX (country code + area code +
+       number, digits only).
+  ==================================================================== -->
+  <section class="cta-section">
+    <div class="cta-card">
+      <div class="cta-glow" aria-hidden="true"></div>
+      <div class="cta-content">
+        <p class="cta-eyebrow">Vamos conversar</p>
+        <h2 class="cta-heading">Pronto para ter um site à altura da sua marca?</h2>
+        <p class="cta-lead">Resposta rápida, sem compromisso. Vamos entender seu negócio e mostrar o caminho.</p>
+        <a class="cta-button" href="#" target="_blank" rel="noopener">
+          <svg class="cta-button-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.86 9.86 0 0 0 12.04 2Zm5.8 14.1c-.24.68-1.4 1.32-1.93 1.4-.5.08-1.12.11-1.8-.11a16.6 16.6 0 0 1-1.66-.62c-2.94-1.27-4.86-4.22-5-4.42-.15-.2-1.2-1.6-1.2-3.05 0-1.45.76-2.16 1.03-2.46.27-.3.6-.37.8-.37.2 0 .4 0 .58.01.19.01.44-.07.68.53.25.61.85 2.1.92 2.25.07.15.12.33.02.53-.1.2-.15.32-.3.5-.15.17-.31.39-.44.52-.15.15-.3.31-.13.6.17.3.75 1.24 1.61 2 .25.22.5.4.75.5.19.07.3.13.44-.07.14-.19.6-.7.76-.94.15-.24.31-.2.52-.12.2.08 1.3.61 1.53.72.22.11.37.17.42.26.06.1.06.55-.18 1.23Z" />
+          </svg>
+          Falar no WhatsApp agora
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================
+       Footer — "D" is a placeholder for the real logo mark; its fade-in
+       is handled by js/scroll-reveals.js.
+  ==================================================================== -->
+  <footer class="site-footer">
+    <div class="footer-logo" aria-hidden="true">D</div>
+    <p class="footer-copyright">&copy; 2026 — Todos os direitos reservados.</p>
+  </footer>
+
+  <!-- GSAP must load as a plain global script (not a module) BEFORE js/main.js,
+       since main.js references `gsap`/`ScrollTrigger` as globals rather than
+       importing them. Regular scripts like these run immediately, in order,
+       as the parser reaches them — module scripts always run afterwards, once
+       the whole page has parsed — so this ordering guarantees GSAP is ready
+       by the time main.js executes. -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
